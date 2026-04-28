@@ -1,0 +1,8 @@
+export type Player = {
+    id: number,
+    first_name: string
+    last_name: string
+    position: string
+    team: string
+    points?: number
+}

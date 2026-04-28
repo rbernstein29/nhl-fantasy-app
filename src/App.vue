@@ -1,11 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import Draft from './components/Draft.vue';
+  import GamePicker from './components/GamePicker.vue';
+  import MyTeam from './components/MyTeam.vue';
+  import WeeklyPerformance from './components/WeeklyPerformance.vue';
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <MyTeam />
+  <Draft />
+  <WeeklyPerformance />
+  <GamePicker />
 </template>
 
 <style scoped></style>
