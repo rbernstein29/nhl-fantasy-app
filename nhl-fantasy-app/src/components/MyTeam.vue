@@ -1,7 +1,9 @@
 <script setup lang="ts">
     import { ref } from 'vue'
-    import { user_players } from '@/ts/constants';
+    import type { Player } from '@/ts/types'
     import PlayerCard from './PlayerCard.vue';
+
+    const user_players = ref<Player[]>([])
 </script>
 
 <template>

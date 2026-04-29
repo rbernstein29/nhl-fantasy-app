@@ -1,10 +1,9 @@
 <script setup lang="ts">
-    import type { Player } from '@/ts/player';
+    import type { Player } from '@/ts/types';
 
     const props = defineProps<{
         player?: Player
     }>()
-    console.log(props.player)
 </script>
 
 <template>
