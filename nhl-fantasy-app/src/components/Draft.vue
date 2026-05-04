@@ -7,11 +7,12 @@
     const all_players = ref<Player[]>([])
     const user_players = ref<Player[]>([])
 
-    const available_centers = computed(() => all_players.value.filter(p => p.position === 'C' && !user_players.value.some(up => up.id === p.id)))
-    const available_rightw = computed(() => all_players.value.filter(p => p.position === 'R' && !user_players.value.some(up => up.id === p.id)))
-    const available_leftw = computed(() => all_players.value.filter(p => p.position === 'L' && !user_players.value.some(up => up.id === p.id)))
-    const available_defense = computed(() => all_players.value.filter(p => p.position === 'D' && !user_players.value.some(up => up.id === p.id)))
-    const available_goalies = computed(() => all_players.value.filter(p => p.position === 'G' && !user_players.value.some(up => up.id === p.id)))
+    const byPoints = (a: Player, b: Player) => (b.points ?? 0) - (a.points ?? 0)
+    const available_centers = computed(() => all_players.value.filter(p => p.position === 'C' && !user_players.value.some(up => up.id === p.id)).sort(byPoints))
+    const available_rightw = computed(() => all_players.value.filter(p => p.position === 'R' && !user_players.value.some(up => up.id === p.id)).sort(byPoints))
+    const available_leftw = computed(() => all_players.value.filter(p => p.position === 'L' && !user_players.value.some(up => up.id === p.id)).sort(byPoints))
+    const available_defense = computed(() => all_players.value.filter(p => p.position === 'D' && !user_players.value.some(up => up.id === p.id)).sort(byPoints))
+    const available_goalies = computed(() => all_players.value.filter(p => p.position === 'G' && !user_players.value.some(up => up.id === p.id)).sort(byPoints))
 
     const populate_available_players = async () => {
         all_players.value = await fetch_players()
@@ -65,6 +66,7 @@
                         <div v-for="slot in [{ label: 'LW', player: lw }, { label: 'C', player: center }, { label: 'RW', player: rw }]" :key="slot.label" class="slot">
                             <div class="slot-label">{{ slot.label }}</div>
                             <template v-if="slot.player">
+                                <img class="slot-headshot" :src="slot.player.headshot">
                                 <div class="slot-name">{{ slot.player.first_name }} {{ slot.player.last_name }}</div>
                                 <div class="slot-points">{{ slot.player.points ?? 0 }} pts</div>
                                 <button class="btn-drop" @click="handle_remove_player(slot.player!)">Drop</button>
@@ -77,6 +79,7 @@
                         <div v-for="(player, i) in [defense[0] ?? null, defense[1] ?? null]" :key="i" class="slot">
                             <div class="slot-label">D</div>
                             <template v-if="player">
+                                <img class="slot-headshot" :src="player.headshot">
                                 <div class="slot-name">{{ player.first_name }} {{ player.last_name }}</div>
                                 <div class="slot-points">{{ player.points ?? 0 }} pts</div>
                                 <button class="btn-drop" @click="handle_remove_player(player)">Drop</button>
@@ -89,6 +92,7 @@
                         <div class="slot">
                             <div class="slot-label">G</div>
                             <template v-if="goalie">
+                                <img class="slot-headshot" :src="goalie.headshot">
                                 <div class="slot-name">{{ goalie.first_name }} {{ goalie.last_name }}</div>
                                 <div class="slot-points">{{ goalie.points ?? 0 }} pts</div>
                                 <button class="btn-drop" @click="handle_remove_player(goalie)">Drop</button>
@@ -239,6 +243,13 @@
         border-radius: 10px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
         text-align: center;
+    }
+
+    .slot-headshot {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     .slot-label {

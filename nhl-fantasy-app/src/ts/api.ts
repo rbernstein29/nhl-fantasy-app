@@ -87,11 +87,33 @@ export const remove_player = async (player: Player) => {
 
 export const get_player_stats = async (player: Player) => {
     try {
-        const response = await fetch (BASE_URL + "get-player-stats/" + player.id)
+        const response = await fetch(BASE_URL + "get-player-stats/" + player.id)
         const data = await response.json()
         console.log(data)
         player.points = data
     } catch (e) {
         console.error("Error fetching stats: ", e)
+    }
+}
+
+export const get_current_leaders = async () => {
+    try {
+        const response = await fetch(BASE_URL + "get-current-leaders")
+        const data = await response.json()
+        console.log(data)
+        return data
+    } catch (e) {
+        console.error("Error getting current leaders: ", e)
+    }
+}
+
+export const get_games = async () => {
+    try {
+        const response = await fetch(BASE_URL + "games")
+        const data = await response.json()
+        console.log(data)
+        return data
+    } catch (e) {
+        console.error("Error getting games: ", e)
     }
 }

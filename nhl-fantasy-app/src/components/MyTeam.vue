@@ -2,6 +2,8 @@
     import { onMounted, ref, computed } from 'vue'
     import type { Player } from '@/ts/types'
     import { get_team, remove_player, get_player_stats } from '@/ts/api'
+    import Leaders from './Leaders.vue'
+    import Games from './Games.vue'
 
     const user_players = ref<Player[]>([])
 
@@ -29,74 +31,86 @@
 </script>
 
 <template>
-    <div class="my-team">
-        <div class="team-header">
-            <h1>My Team</h1>
-            <RouterLink to="/performance" class="btn-performance">Season Performance</RouterLink>
-        </div>
-
-        <template v-if="user_players.length === 0">
-            <div class="empty-state">
-                <h2>You haven't drafted any players yet.</h2>
-                <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
+    <div class="home">
+        <Leaders />
+        <div class="my-team">
+            <div class="team-header">
+                <h1>My Team</h1>
+                <RouterLink to="/performance" class="btn-performance">Season Performance</RouterLink>
             </div>
-        </template>
 
-        <div v-else class="lineup">
-            <div class="lineup-row">
-                <div v-for="slot in [{ label: 'LW', player: lw }, { label: 'C', player: center }, { label: 'RW', player: rw }]" :key="slot.label" class="slot">
-                    <div class="slot-label">{{ slot.label }}</div>
-                    <template v-if="slot.player">
-                        <div class="slot-name">{{ slot.player.first_name }} {{ slot.player.last_name }}</div>
-                        <div class="slot-points">{{ slot.player.points ?? 0 }} pts</div>
-                        <button class="btn-drop" @click="handle_remove_player(slot.player!)">Drop</button>
-                    </template>
-                    <template v-else>
-                        <div class="slot-empty">No player drafted</div>
-                        <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
-                    </template>
+            <template v-if="user_players.length === 0">
+                <div class="empty-state">
+                    <h2>You haven't drafted any players yet.</h2>
+                    <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
+                </div>
+            </template>
+
+            <div v-else class="lineup">
+                <div class="lineup-row">
+                    <div v-for="slot in [{ label: 'LW', player: lw }, { label: 'C', player: center }, { label: 'RW', player: rw }]" :key="slot.label" class="slot">
+                        <div class="slot-label">{{ slot.label }}</div>
+                        <template v-if="slot.player">
+                            <img v-if="slot.player.headshot" class="slot-headshot" :src="slot.player.headshot">
+                            <div class="slot-name">{{ slot.player.first_name }} {{ slot.player.last_name }}</div>
+                            <div class="slot-points">{{ slot.player.points ?? 0 }} pts</div>
+                            <button class="btn-drop" @click="handle_remove_player(slot.player!)">Drop</button>
+                        </template>
+                        <template v-else>
+                            <div class="slot-empty">No player drafted</div>
+                            <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="lineup-row defense-row">
+                    <div v-for="(player, i) in [defense[0] ?? null, defense[1] ?? null]" :key="i" class="slot">
+                        <div class="slot-label">D</div>
+                        <template v-if="player">
+                            <img v-if="player.headshot" class="slot-headshot" :src="player.headshot">
+                            <div class="slot-name">{{ player.first_name }} {{ player.last_name }}</div>
+                            <div class="slot-points">{{ player.points ?? 0 }} pts</div>
+                            <button class="btn-drop" @click="handle_remove_player(player)">Drop</button>
+                        </template>
+                        <template v-else>
+                            <div class="slot-empty">No player drafted</div>
+                            <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="lineup-row goalie-row">
+                    <div class="slot">
+                        <div class="slot-label">G</div>
+                        <template v-if="goalie">
+                            <img v-if="goalie.headshot" class="slot-headshot" :src="goalie.headshot">
+                            <div class="slot-name">{{ goalie.first_name }} {{ goalie.last_name }}</div>
+                            <div class="slot-points">{{ goalie.points ?? 0 }} pts</div>
+                            <button class="btn-drop" @click="handle_remove_player(goalie)">Drop</button>
+                        </template>
+                        <template v-else>
+                            <div class="slot-empty">No player drafted</div>
+                            <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
+                        </template>
+                    </div>
                 </div>
             </div>
 
-            <div class="lineup-row defense-row">
-                <div v-for="(player, i) in [defense[0] ?? null, defense[1] ?? null]" :key="i" class="slot">
-                    <div class="slot-label">D</div>
-                    <template v-if="player">
-                        <div class="slot-name">{{ player.first_name }} {{ player.last_name }}</div>
-                        <div class="slot-points">{{ player.points ?? 0 }} pts</div>
-                        <button class="btn-drop" @click="handle_remove_player(player)">Drop</button>
-                    </template>
-                    <template v-else>
-                        <div class="slot-empty">No player drafted</div>
-                        <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
-                    </template>
-                </div>
-            </div>
-
-            <div class="lineup-row goalie-row">
-                <div class="slot">
-                    <div class="slot-label">G</div>
-                    <template v-if="goalie">
-                        <div class="slot-name">{{ goalie.first_name }} {{ goalie.last_name }}</div>
-                        <div class="slot-points">{{ goalie.points ?? 0 }} pts</div>
-                        <button class="btn-drop" @click="handle_remove_player(goalie)">Drop</button>
-                    </template>
-                    <template v-else>
-                        <div class="slot-empty">No player drafted</div>
-                        <RouterLink to="/draft" class="btn-draft">Go to Draft</RouterLink>
-                    </template>
-                </div>
+            <div v-if="user_players.length > 0" class="total-points">
+                <span>Total Points</span>
+                <span>{{ total_points }}</span>
             </div>
         </div>
-
-        <div v-if="user_players.length > 0" class="total-points">
-            <span>Total Points</span>
-            <span>{{ total_points }}</span>
-        </div>
+        <Games />
     </div>
 </template>
 
 <style scoped>
+    .home {
+        display: grid;
+        grid-template: "leaders team games" / 250px 1fr 250px
+    }
+
     .my-team {
         max-width: 700px;
         margin: 0 auto;
@@ -180,6 +194,13 @@
         border-radius: 10px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
         text-align: center;
+    }
+
+    .slot-headshot {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     .slot-label {

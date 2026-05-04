@@ -13,7 +13,8 @@
 </script>
 
 <template>
-    <curr-player :style="{ gridTemplateColumns: slots.default ? '1fr auto auto auto auto' : '1fr auto auto auto' }">
+    <curr-player :style="{ gridTemplateColumns: slots.default ? 'auto 1fr auto auto auto auto' : 'auto 1fr auto auto auto' }">
+        <img v-if="player?.headshot" class="player-headshot" :src="player.headshot">
         <play-name>
             <play-first-name>{{ player?.first_name }}</play-first-name>
             <play-last-name>{{ player?.last_name }}</play-last-name>
@@ -42,6 +43,13 @@
     curr-player:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         transform: translateY(-1px);
+    }
+
+    .player-headshot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     play-name {
@@ -81,8 +89,10 @@
         color: #0ea5e9;
         font-weight: 700;
         font-size: 0.95rem;
-        min-width: 5ch;
+        min-width: 9ch;
         text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
     }
 
     :slotted(button) {

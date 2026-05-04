@@ -49,6 +49,7 @@ const process_player = (player) => {
         position: player.positionCode,
         number: player.sweaterNumber,
         team: "CAR",
+        headshot: player.headshot,
         points: 0,
     }
     return curr_player
@@ -72,6 +73,66 @@ const process_player_stats = (player) => {
     return points
 }
 
+const process_goal_leaders = (leaders) => {
+    const goal_leaders = []
+    for (const player of leaders.goals) {
+        goal_leaders.push({
+            first_name: player.firstName.default,
+            last_name: player.lastName.default,
+            team: player.teamAbbrev,
+            team_logo: player.teamLogo,
+            goals: player.value,
+        })
+    }
+    return goal_leaders
+}
+
+const process_assist_leaders = (leaders) => {
+    const assist_leaders = []
+    for (const player of leaders.assists) {
+        assist_leaders.push({
+            first_name: player.firstName.default,
+            last_name: player.lastName.default,
+            team: player.teamAbbrev,
+            team_logo: player.teamLogo,
+            assists: player.value,
+        })
+    }
+    return assist_leaders
+}
+
+const process_point_leaders = (leaders) => {
+    const point_leaders = []
+    for (const player of leaders.points) {
+        point_leaders.push({
+            first_name: player.firstName.default,
+            last_name: player.lastName.default,
+            team: player.teamAbbrev,
+            team_logo: player.teamLogo,
+            points: player.value,
+        })
+    }
+    return point_leaders
+}
+
+const process_games = (data) => {
+    const today_games = []
+    for (const game of data.games) {
+        today_games.push({
+            id: game.id,
+            away_team: game.awayTeam.abbrev,
+            away_logo: game.awayTeam.logo,
+            away_score: game.awayTeam.score,
+            home_team: game.homeTeam.abbrev,
+            home_logo: game.homeTeam.logo,
+            home_score: game.homeTeam.score,
+        })
+    }
+    return today_games
+}
+
+/* GET Methods */
+
 app.get("/api/get-players", async (request, response) => {
     const res = await fetch(BASE_URL + "/v1/roster/CAR/current")
     const data = await res.json()
@@ -89,6 +150,29 @@ app.get("/api/get-player-stats/:id", async (request, response) => {
     const processed_data = process_player_stats(data)
     response.json(processed_data)
 })
+
+app.get("/api/get-current-leaders", async (request, response) => {
+    const res = await fetch(BASE_URL + "/v1/skater-stats-leaders/current")
+    const data = await res.json()
+    const goal_leaders = process_goal_leaders(data)
+    const assist_leaders = process_assist_leaders(data)
+    const point_leaders = process_point_leaders(data)
+    const processed_data = {
+        goals: goal_leaders,
+        assists: assist_leaders,
+        points: point_leaders,
+    }
+    response.json(processed_data)
+})
+
+app.get("/api/games", async (request, response) => {
+    const res = await fetch(BASE_URL + "/v1/score/now")
+    const data = await res.json()
+    const games = process_games(data)
+    response.json(games)
+})
+
+/* PATCH Methods */
 
 app.patch("/api/select-forward", (request, response) => {
     const player = request.body

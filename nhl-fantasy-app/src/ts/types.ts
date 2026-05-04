@@ -4,12 +4,19 @@ export type Player = {
     last_name: string
     position: string
     team: string
+    team_logo: string
+    headshot: string
     points?: number
+    goals?: number
+    assists?: number
 }
 
 export type Game = {
     id: number
-    team1: string
-    team2: string
-    choice: string
+    away_team: string
+    away_logo: string
+    away_score?: number
+    home_team: string
+    home_logo: string
+    home_score?: number
 }
