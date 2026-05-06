@@ -272,7 +272,7 @@ app.patch("/api/remove-team/:id", (request, response) => {
     else {
         const team = user_teams[index]
         user_teams.splice(index, 1)
-        respons.status(200).send(player)
+        response.status(200).send(user_teams)
     }
 })
 

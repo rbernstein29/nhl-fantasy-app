@@ -63,6 +63,11 @@ import PlayerCard from './PlayerCard.vue'
         await populate_user_players()
     }
 
+    const handle_delete_team = async (team: Team) => {
+        await delete_team(team)
+        await update_user_teams_list()
+    }
+
     const lw = computed(() => user_players.value.find(p => p.position === 'L') ?? null)
     const center = computed(() => user_players.value.find(p => p.position === 'C') ?? null)
     const rw = computed(() => user_players.value.find(p => p.position === 'R') ?? null)
@@ -146,7 +151,7 @@ import PlayerCard from './PlayerCard.vue'
                 <span>Total Points</span>
                 <span>{{ total_points }}</span>
             </div>
-            <div class="save-team-row">
+            <div v-if="user_players.length > 0" class="save-team-row">
                 <input v-model="team_name" class="team-name-input" placeholder="Team name" />
                 <button class="btn-save" @click="handle_save_team">Save Team</button>
             </div>
@@ -173,7 +178,7 @@ import PlayerCard from './PlayerCard.vue'
                     <div class="saved-team-actions">
                         <button class="btn-select" @click.stop="handle_select_team(team)">Select Team</button>
                         <button class="btn-save" @click.stop="start_edit(team)">Edit</button>
-                        <button class="btn-drop" @click.stop="delete_team(team)">Delete</button>
+                        <button class="btn-drop" @click.stop="handle_delete_team(team)">Delete</button>
                     </div>
                 </div>
                 <div v-if="user_teams.length === 0" class="empty-state">
