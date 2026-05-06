@@ -118,10 +118,11 @@ export const get_games = async () => {
     }
 }
 
-export const save_team = async (players: Player[]) => {
+export const save_team = async (players: Player[], name: string) => {
     try {
         const team = {
             id: Date.now(),
+            name,
             center: players.find(player => player.position === "C"),
             left_wing: players.find(player => player.position === "L"),
             right_wing: players.find(player => player.position === "R"),
@@ -167,5 +168,52 @@ export const get_user_teams = async () => {
         return data
     } catch (e) {
         console.error("Error getting user teams: ", e)
+    }
+}
+
+export const rename_team = async (team: Team, name: string) => {
+    try {
+        const response = await fetch(BASE_URL + "rename-team/" + team.id, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name }),
+        })
+        const data = await response.json()
+        console.log(data)
+    } catch (e) {
+        console.error("Error renaming team: ", e)
+    }
+}
+
+export const select_user_team = async (team: Team) => {
+    try {
+        const response = await fetch(BASE_URL + "select-team", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(team),
+        })
+        const data = await response.json()
+        console.log(data)
+    } catch (e) {
+        console.error("Error selecting team: ", e)
+    }
+}
+
+export const clear_team = async () => {
+    try {
+        const response = await fetch(BASE_URL + "clear-team", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+        const data = await response.json()
+        console.log(data)
+    } catch (e) {
+        console.error("Error clearing team: ", e)
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue'
-    import { fetch_players, get_team, select_forward, select_defense, select_goalie, remove_player } from '@/ts/api'
+    import { fetch_players, get_team, select_forward, select_defense, select_goalie, remove_player, clear_team } from '@/ts/api'
     import type { Player } from '@/ts/types';
     import PlayerCard from './PlayerCard.vue';
 
@@ -42,6 +42,11 @@
         await populate_user_players()
     }
 
+    const handle_clear_team = async () => {
+        await clear_team()
+        await populate_user_players()
+    }
+
     const lw = computed(() => user_players.value.find(p => p.position === 'L') ?? null)
     const center = computed(() => user_players.value.find(p => p.position === 'C') ?? null)
     const rw = computed(() => user_players.value.find(p => p.position === 'R') ?? null)
@@ -60,10 +65,13 @@
         <div class="draft-layout">
 
             <div class="your-team">
-                <h2>Your Team</h2>
+                <div class="your-team-header">
+                    <h2>Your Team</h2>
+                    <button class="btn-clear" @click="handle_clear_team()">Clear Team</button>
+                </div>
                 <div class="lineup">
                     <div class="lineup-row">
-                        <div v-for="slot in [{ label: 'LW', player: lw }, { label: 'C', player: center }, { label: 'RW', player: rw }]" :key="slot.label" class="slot">
+                        <div v-for="slot in [{ label: 'L', player: lw }, { label: 'C', player: center }, { label: 'R', player: rw }]" :key="slot.label" class="slot">
                             <div class="slot-label">{{ slot.label }}</div>
                             <template v-if="slot.player">
                                 <img class="slot-headshot" :src="slot.player.headshot">
@@ -277,6 +285,33 @@
         font-size: 0.75rem;
         color: #cbd5e1;
         font-style: italic;
+    }
+
+    .your-team-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .your-team-header h2 {
+        margin: 0;
+    }
+
+    .btn-clear {
+        padding: 0.4rem 1rem;
+        background: #fee2e2;
+        color: #dc2626;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .btn-clear:hover {
+        background: #fecaca;
     }
 
     .btn-drop {

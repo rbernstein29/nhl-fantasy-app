@@ -10,7 +10,7 @@ app.use(cors({
 
 const BASE_URL = "https://api-web.nhle.com"
 
-const user_players = []
+let user_players = []
 const user_teams = []
 
 const centers_max = 1
@@ -132,7 +132,7 @@ const process_games = (data) => {
     return today_games
 }
 
-/* GET Methods */
+/* EXTERNAL GET METHODS (to NHL api) */
 
 app.get("/api/get-players", async (request, response) => {
     const res = await fetch(BASE_URL + "/v1/roster/CAR/current")
@@ -166,6 +166,8 @@ app.get("/api/get-current-leaders", async (request, response) => {
     response.json(processed_data)
 })
 
+/* INTERNAL GET METHODS */
+
 app.get("/api/games", async (request, response) => {
     const res = await fetch(BASE_URL + "/v1/score/now")
     const data = await res.json()
@@ -177,7 +179,7 @@ app.get("/api/get-user-teams", (request, response) => {
     response.json(user_teams)
 })
 
-/* PATCH Methods */
+/* PATCH METHODS */
 
 app.patch("/api/select-forward", (request, response) => {
     const player = request.body
@@ -272,6 +274,38 @@ app.patch("/api/remove-team/:id", (request, response) => {
         user_teams.splice(index, 1)
         respons.status(200).send(player)
     }
+})
+
+app.patch("/api/rename-team/:id", (request, response) => {
+    const id = parseInt(request.params.id)
+    const team = user_teams.find(t => t.id === id)
+    if (!team) {
+        response.status(404).json({ message: "Team not found" })
+    }
+    else {
+        team.name = request.body.name
+        response.status(200).send(team)
+    }
+})
+
+app.patch("/api/select-team", (request, response) => {
+    const team = request.body
+    const team_list = Object.values(team)
+    user_players = []
+    for (const player of team_list) {
+        user_players.push(player)
+    }
+    response.send(user_players)
+})
+
+app.patch("/api/clear-team", (request, response) => {
+    user_players = []
+    num_centers = 0
+    num_rightw = 0
+    num_leftw = 0
+    num_defense = 0
+    num_goalies = 0
+    response.send(user_players)
 })
 
 app.listen(4449)

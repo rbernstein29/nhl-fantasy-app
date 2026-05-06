@@ -23,6 +23,7 @@ export type Game = {
 
 export type Team = {
     id: number
+    name: string
     center?: Player
     left_wing?: Player
     right_wing?: Player
