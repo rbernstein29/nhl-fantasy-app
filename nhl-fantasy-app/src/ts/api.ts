@@ -1,4 +1,4 @@
-import type { Player } from "./types"
+import type { Player, Team } from "./types"
 
 const BASE_URL = "http://localhost:4449/api/"
 
@@ -115,5 +115,57 @@ export const get_games = async () => {
         return data
     } catch (e) {
         console.error("Error getting games: ", e)
+    }
+}
+
+export const save_team = async (players: Player[]) => {
+    try {
+        const team = {
+            id: Date.now(),
+            center: players.find(player => player.position === "C"),
+            left_wing: players.find(player => player.position === "L"),
+            right_wing: players.find(player => player.position === "R"),
+            defense_1: players.find(player => player.position === "D"),
+            defense_2: players.filter(player => player.position === "D")[1],
+            goalie: players.find(player => player.position === "G"),
+            points: players.reduce((sum, p) => sum + (p.points ?? 0), 0)
+        }
+        const response = await fetch(BASE_URL + "save-team", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(team),
+        })
+        const data = await response.json()
+        console.log(data)
+    } catch (e) {
+        console.error("Error saving team: ", e)
+    }
+}
+
+export const delete_team = async (team: Team) => {
+    try {
+        const response = await fetch(BASE_URL + "remove-team/" + team.id, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+        const data = await response.json()
+        console.log(data)
+    } catch (e) {
+        console.error("Error deleting team: ", e)
+    }
+}
+
+export const get_user_teams = async () => {
+    try {
+        const response = await fetch(BASE_URL + "get-user-teams")
+        const data = await response.json()
+        console.log(data)
+        return data
+    } catch (e) {
+        console.error("Error getting user teams: ", e)
     }
 }

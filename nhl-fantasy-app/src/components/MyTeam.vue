@@ -1,17 +1,22 @@
 <script setup lang="ts">
     import { onMounted, ref, computed } from 'vue'
-    import type { Player } from '@/ts/types'
-    import { get_team, remove_player, get_player_stats } from '@/ts/api'
+    import type { Player, Team } from '@/ts/types'
+    import { get_team, remove_player, get_player_stats, save_team, get_user_teams, delete_team } from '@/ts/api'
     import Leaders from './Leaders.vue'
     import Games from './Games.vue'
 
     const user_players = ref<Player[]>([])
+    const user_teams = ref<Team[]>([])
 
     const populate_user_players = async () => {
         user_players.value = await get_team()
         for (const player of user_players.value) {
             get_player_stats(player)
         }
+    }
+
+    const update_user_teams_list = async () => {
+        user_teams.value = await get_user_teams()
     }
 
     const handle_remove_player = async (player: Player) => {
@@ -27,7 +32,7 @@
 
     const total_points = computed(() => user_players.value.reduce((sum, p) => sum + (p.points ?? 0), 0))
 
-    onMounted(() => populate_user_players())
+    onMounted(() => Promise.all([populate_user_players(), update_user_teams_list()]))
 </script>
 
 <template>
@@ -36,7 +41,6 @@
         <div class="my-team">
             <div class="team-header">
                 <h1>My Team</h1>
-                <RouterLink to="/performance" class="btn-performance">Season Performance</RouterLink>
             </div>
 
             <template v-if="user_players.length === 0">
@@ -99,7 +103,14 @@
             <div v-if="user_players.length > 0" class="total-points">
                 <span>Total Points</span>
                 <span>{{ total_points }}</span>
+                <button @click="save_team(user_players)">Save Team</button>
             </div>
+            
+            <h1>Saved Teams</h1>
+            <template v-for="team in user_teams">
+                <p>{{ team.points }}</p>
+                <button @click="delete_team(team)">Delete Team</button>
+            </template>
         </div>
         <Games />
     </div>

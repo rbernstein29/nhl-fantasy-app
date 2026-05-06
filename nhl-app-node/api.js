@@ -11,6 +11,7 @@ app.use(cors({
 const BASE_URL = "https://api-web.nhle.com"
 
 const user_players = []
+const user_teams = []
 
 const centers_max = 1
 const rightw_max = 1
@@ -172,6 +173,10 @@ app.get("/api/games", async (request, response) => {
     response.json(games)
 })
 
+app.get("/api/get-user-teams", (request, response) => {
+    response.json(user_teams)
+})
+
 /* PATCH Methods */
 
 app.patch("/api/select-forward", (request, response) => {
@@ -242,6 +247,30 @@ app.patch("/api/remove-player/:id", (request, response) => {
         else if (player.position === 'D') { num_defense-- }
         else { num_goalies-- }
         response.status(200).send(player)
+    }
+})
+
+app.patch("/api/save-team", (request, response) => {
+    const team = request.body
+    if (user_teams.some(t => t.id === team.id)) {
+        response.status(200).json({ message: "Team already saved" })
+    }
+    else {
+        user_teams.push(team)
+        response.status(200).send(team)
+    }
+})
+
+app.patch("/api/remove-team/:id", (request, response) => {
+    const id = parseInt(request.params.id)
+    const index = user_teams.findIndex(t => t.id === id)
+    if (index === -1) {
+        response.status(404).json({ message: "Team not found" })
+    }
+    else {
+        const team = user_teams[index]
+        user_teams.splice(index, 1)
+        respons.status(200).send(player)
     }
 })
 
